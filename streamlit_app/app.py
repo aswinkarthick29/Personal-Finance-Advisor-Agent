@@ -2,7 +2,8 @@ import streamlit as st
 import requests
 from PIL import Image
 
-API_URL = "http://localhost:9004"
+import os
+API_URL = st.secrets.get("BACKEND_URL", os.getenv("BACKEND_URL", "http://localhost:9004"))
 
 # ─── PAGE CONFIG ────────────────────────────────────────────────────────────
 _logo = Image.open("streamlit_app/logo.png")
