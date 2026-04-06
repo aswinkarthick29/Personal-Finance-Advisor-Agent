@@ -1,7 +1,8 @@
 import requests
 import json
 
-url = "http://127.0.0.1:9002/upload-csv/"
+url = "https://personal-finance-advisor-agent-uwjp.onrender.com/upload-csv/"
+
 files = {'file': open('sample_expenses.csv', 'rb')}
 
 print(f"Sending request to {url}")
