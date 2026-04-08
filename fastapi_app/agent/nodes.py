@@ -81,6 +81,27 @@ def revise_advice(state: AgentState) -> dict:
     latest_feedback = feedbacks[-1] if feedbacks else "No feedback provided."
     iters = state.get("iteration_count", 0) + 1
     
+    # --- Guardrail Check ---
+    guardrail_prompt = f"""
+    You are a guardrail for a Personal Finance Advisor AI.
+    Determine if the following user input is related to personal finance, budgeting, savings, investing, seeking financial advice, or providing constraints on previous financial advice.
+    
+    User Input: "{latest_feedback}"
+    
+    If it is purely unrelated (e.g., asking for a biryani recipe, writing code, general knowledge, or casual chat unrelated to finance), reply entirely with exactly 'REJECT'. 
+    Otherwise, reply with 'ACCEPT'.
+    """
+    
+    guardrail_response = llm.invoke([HumanMessage(content=guardrail_prompt)]).content.strip()
+    
+    if "REJECT" in guardrail_response.upper():
+        print(f"Guardrail Check Failed: Rejecting off-topic query: '{latest_feedback}'")
+        return {
+            "current_advice": "I am a Personal Finance Advisor AI and can only help with questions related to personal finance, savings, budgeting, and your expenses. Please ask a relevant question.",
+            "iteration_count": iters
+        }
+    # -----------------------
+    
     prompt = f"""
     You are a professional Personal Finance Advisor.
     You previously gave this advice:
@@ -98,7 +119,6 @@ def revise_advice(state: AgentState) -> dict:
         "current_advice": response.content,
         "iteration_count": iters
     }
-
 
 # Node 5: Future Predictions
 def predict_future_savings(state: AgentState) -> dict:
